@@ -69,7 +69,7 @@ client.once('ready', async () => {
   }
 
   // Otherwise, schedule with cron for local/server use
-  cron.schedule('50 4 * * *', () => sendDailyMessages());
+  cron.schedule('25 10 * * *', () => sendDailyMessages());
 });
 
 client.login(process.env.DISCORD_TOKEN);
