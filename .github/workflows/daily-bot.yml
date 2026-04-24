@@ -1,0 +1,30 @@
+name: Daily Discord Bot
+
+on:
+  schedule:
+    # 10:20 AM IST = 04:50 UTC
+    - cron: '50 4 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run bot
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+        run: node bot.js
+        timeout-minutes: 2

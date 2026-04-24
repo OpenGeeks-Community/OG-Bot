@@ -8,17 +8,12 @@ const client = new Client({
 
 const CHANNEL_ID = process.env.CHANNEL_ID;
 
-client.once('ready', () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
+async function sendDailyMessages() {
+  const channel = client.channels.cache.get(CHANNEL_ID);
 
-  // ⏰ Daily at 10 AM
-
-  cron.schedule('* * * * *', async () => {
-    const channel = client.channels.cache.get(CHANNEL_ID);
-
-    if (channel) {
-      // Main update message with @everyone
-      await channel.send(
+  if (channel) {
+    // Main update message with @everyone
+    await channel.send(
         "@everyone 🔔 **How are you doing!**\n\n" +
         "💻 **What are you working on?**\n" +
         "🚀 **What did you complete recently?**\n" +
@@ -60,9 +55,21 @@ client.once('ready', () => {
         },
       });
     }
-  });
+}
 
+client.once('ready', async () => {
+  console.log(`✅ Logged in as ${client.user.tag}`);
 
+  // If running in CI, send messages once and exit
+  if (process.env.CI) {
+    await sendDailyMessages();
+    console.log('✅ Messages sent. Exiting.');
+    client.destroy();
+    process.exit(0);
+  }
+
+  // Otherwise, schedule with cron for local/server use
+  cron.schedule('50 4 * * *', () => sendDailyMessages());
 });
 
 client.login(process.env.DISCORD_TOKEN);
